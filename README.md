@@ -8,7 +8,7 @@
 
 ## Dependencies
 
-- [SDKMAN!]
+- [SDKMAN!](https://sdkman.io/)
     - Java
     - Maven
 
