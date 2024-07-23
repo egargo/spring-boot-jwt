@@ -1,10 +1,11 @@
-package io.egargo.jwt;
+package io.egargo.jwt.services;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.function.Function;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
@@ -14,18 +15,19 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-/**
- * This class accepts any object as the parameter
- */
 @Service
 public class JwtService<T> {
-    private String secretKey = "3cfa76ef14937c1c0ea519f8fc057a80fcd04a7420f8e8bcd0a7567c272e007b";
-    // Token expiration is 7 days.
-    private long tokenExp = 60 * 60 * 24 * 7 * 1000;
-    // Refresh token expiration is 15 minutes.
-    private long tokenRefreshExp = 15 * 60 * 1000;
-    private String refreshToken;
-    private String token;
+    @Value("${security.jwt.secret-key}")
+    private String tokenSecretKey;
+
+    @Value("${security.jwt.access-expiration-time}")
+    private long tokenAccessExp;
+
+    @Value("${security.jwt.refresh-expiration-time}")
+    private long tokenRefreshExp;
+
+    private String tokenAccess;
+    private String tokenRefresh;
     private Claims claims;
 
     public JwtService() {
@@ -34,21 +36,21 @@ public class JwtService<T> {
     // Public methods
 
     private Key getSignedKey() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(tokenSecretKey));
     }
 
-    private void createToken(HashMap<String, T> claims, String username) {
-        this.token = Jwts
+    private String createAccessToken(HashMap<String, T> claims, String username) {
+        return Jwts
                 .builder()
                 .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + tokenExp))
+                .setExpiration(new Date(System.currentTimeMillis() + tokenAccessExp))
                 .signWith(getSignedKey(), SignatureAlgorithm.HS256).compact();
     }
 
-    private void createRefreshToken(HashMap<String, T> claims, String username) {
-        this.refreshToken = Jwts
+    private String createRefreshToken(HashMap<String, T> claims, String username) {
+        return Jwts
                 .builder()
                 .setClaims(claims)
                 .setSubject(username)
@@ -81,54 +83,52 @@ public class JwtService<T> {
 
     // Public methods
 
-    public boolean verifyToken(String token, T data) {
+    public boolean verifyAccessToken(String token) {
         try {
             final boolean validity = !isTokenExpired(token);
+            if (!validity) {
+                return false;
+            }
             return validity;
         } catch (Exception e) {
             throw new ExpiredJwtException(null, claims, null);
         }
     }
 
-    public boolean verifyRefreshToken(String token, T data) {
+    public boolean verifyRefreshToken(String token) {
         try {
             final boolean validity = !isTokenExpired(token);
+            if (!validity) {
+                return false;
+            }
             return validity;
         } catch (Exception e) {
             throw new ExpiredJwtException(null, claims, null);
         }
     }
 
-    public void generateToken(String username, T user) {
+    public String generateAccessToken(String username, T user) {
         HashMap<String, T> claims = new HashMap<>();
         claims.put("data", user);
-        createToken(claims, username);
+        return createAccessToken(claims, username);
     }
 
-    public void generateRefreshToken(String username, T user) {
+    public String generateRefreshToken(String username, T user) {
         HashMap<String, T> claims = new HashMap<>();
         claims.put("data", user);
-        createRefreshToken(claims, username);
+        return createRefreshToken(claims, username);
     }
 
     // Getters and setters
-    public String getToken() {
-        return this.token;
+    public String getAccessToken() {
+        return this.tokenAccess;
     }
 
     public String getRefreshToken() {
-        return this.refreshToken;
+        return this.tokenRefresh;
     }
 
     public Claims getClaims() {
         return this.claims;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public void setRefreshToken(String token) {
-        this.refreshToken = token;
     }
 }
