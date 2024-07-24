@@ -7,6 +7,34 @@
 	},
 	"item": [
 		{
+			"name": "Create",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"a\",\n    \"email\": \"a\",\n    \"password\": \"a\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/auth/create",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"auth",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Login",
 			"request": {
 				"method": "POST",
@@ -63,6 +91,41 @@
 			"response": []
 		},
 		{
+			"name": "Refresh",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjIiwiaWF0IjoxNzIxNzQ2MjM0LCJleHAiOjE3MjE4MzI2MzR9.PgiFi-PvwCV41EauLaB-izhkzBroNBgOfxqEbeRRSZ8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "refreshToken",
+						"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjIiwiaWF0IjoxNzIxNzQ2MjM0LCJleHAiOjE3MjE4MzI2MzR9.PgiFi-PvwCV41EauLaB-izhkzBroNBgOfxqEbeRRSZ8",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:8080/auth/refresh",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"auth",
+						"refresh"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Protected",
 			"request": {
 				"auth": {
@@ -70,7 +133,7 @@
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InVzZXJuYW1lIjoiYyIsImVtYWlsIjoiYyIsInBhc3N3b3JkIjoiJDJhJDEyJGFDV1hlb2dCQmlNSURCTWxxNmZ1ak9QL0ZoYncxT2dxVUhKVEIvWEtrVmd0ZU4zTXVnYVRTIn0sInN1YiI6ImMiLCJpYXQiOjE3MjE3MTcxNzgsImV4cCI6MTcyMTcyMDc3OH0.5vImSWw_JtKlYD0lm8DOMSsIM0GU029EQKfAmeuSGk4",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjIiwiaWF0IjoxNzIxNzQ3MDg2LCJleHAiOjE3MjE3NDc5ODZ9.V-pabUVsy0Vv7Mb7MI2jIj4OXJIA7vw8qBuRLlXgTPc",
 							"type": "string"
 						}
 					]
@@ -79,7 +142,7 @@
 				"header": [
 					{
 						"key": "refreshToken",
-						"value": "eyJhbGciOiJIUzI1NiJ9.eyJkYXRhIjp7InVzZXJuYW1lIjoiYyIsImVtYWlsIjoiYyIsInBhc3N3b3JkIjoiJDJhJDEyJGFDV1hlb2dCQmlNSURCTWxxNmZ1ak9QL0ZoYncxT2dxVUhKVEIvWEtrVmd0ZU4zTXVnYVRTIn0sInN1YiI6ImMiLCJpYXQiOjE3MjE3MTgxMjMsImV4cCI6MTcyMTcxOTAyM30.0Av3s5KfkbvoTU7idGH8oMiDTbuPsHaITq1cx4l72OI",
+						"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjIiwiaWF0IjoxNzIxNzQ3MDg2LCJleHAiOjE3MjE4MzM0ODZ9._4EQ9kGT4VEl51FijVcm4L1VETetfqrY4Fl-Ufycfec",
 						"type": "text"
 					}
 				],
