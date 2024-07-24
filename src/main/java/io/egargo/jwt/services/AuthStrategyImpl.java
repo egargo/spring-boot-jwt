@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @Service
 public class AuthStrategyImpl implements AuthStrategy {
     @Autowired
-    JwtService<User> jwtService = new JwtService<>();
+    JwtService<String> jwtService = new JwtService<>();
 
     UserService userService = new UserService();
 
@@ -44,7 +44,7 @@ public class AuthStrategyImpl implements AuthStrategy {
             return new ResponseEntity<>("No authorization token found", HttpStatusCode.valueOf(400));
         }
 
-        if (!jwtService.verifyAccessToken(bearerToken.split(" ")[1])) {
+        if (!jwtService.verifyToken(bearerToken.split(" ")[1])) {
             return new ResponseEntity<>("Expired token", HttpStatusCode.valueOf(400));
         }
 
@@ -53,7 +53,7 @@ public class AuthStrategyImpl implements AuthStrategy {
                     HttpStatusCode.valueOf(400));
         }
 
-        if (!jwtService.verifyRefreshToken(refreshToken)) {
+        if (!jwtService.verifyToken(refreshToken)) {
             System.out.println("2");
             return new ResponseEntity<>("You are not authorized to access this resource",
                     HttpStatusCode.valueOf(401));

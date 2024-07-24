@@ -2,7 +2,6 @@ package io.egargo.jwt.services;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -26,40 +25,49 @@ public class JwtService<T> {
     @Value("${security.jwt.refresh-expiration-time}")
     private long tokenRefreshExp;
 
-    private String tokenAccess;
-    private String tokenRefresh;
     private Claims claims;
 
     public JwtService() {
     }
 
-    // Public methods
-
+    /**
+     * @return
+     */
     private Key getSignedKey() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(tokenSecretKey));
     }
 
-    private String createAccessToken(HashMap<String, T> claims, String username) {
+    /**
+     * @param username
+     * @return
+     */
+    private String createAccessToken(final String username) {
         return Jwts
                 .builder()
-                .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + tokenAccessExp))
                 .signWith(getSignedKey(), SignatureAlgorithm.HS256).compact();
     }
 
-    private String createRefreshToken(HashMap<String, T> claims, String username) {
+    /**
+     * @param username
+     * @return
+     */
+    private String createRefreshToken(final String username) {
         return Jwts
                 .builder()
-                .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + tokenRefreshExp))
                 .signWith(getSignedKey(), SignatureAlgorithm.HS256).compact();
     }
 
-    private Claims extractAllClaims(String token) {
+    /**
+     * @param token
+     * @return
+     */
+    public Claims extractAllClaims(final String token) {
         return Jwts
                 .parserBuilder()
                 .setSigningKey(this.getSignedKey())
@@ -68,67 +76,62 @@ public class JwtService<T> {
                 .getBody();
     }
 
-    private Date extractExpiration(String token) {
+    /**
+     * @param token
+     * @return
+     */
+    private Date extractExpiration(final String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    private <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
+    /**
+     * @param <T>
+     * @param token
+     * @param claimResolver
+     * @return
+     */
+    @SuppressWarnings("hiding")
+    private <T> T extractClaim(final String token, final Function<Claims, T> claimResolver) {
         final Claims claim = extractAllClaims(token);
         return claimResolver.apply(claim);
     }
 
-    private boolean isTokenExpired(String token) {
+    /**
+     * Check if token is expired.
+     *
+     * @param token the JSONWebToken
+     * @return boolean if the token is expired
+     */
+    private boolean isTokenExpired(final String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    // Public methods
-
-    public boolean verifyAccessToken(String token) {
+    /**
+     * @param token
+     * @return
+     */
+    public boolean verifyToken(final String token) {
         try {
             final boolean validity = !isTokenExpired(token);
-            if (!validity) {
-                return false;
-            }
             return validity;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new ExpiredJwtException(null, claims, null);
         }
     }
 
-    public boolean verifyRefreshToken(String token) {
-        try {
-            final boolean validity = !isTokenExpired(token);
-            if (!validity) {
-                return false;
-            }
-            return validity;
-        } catch (Exception e) {
-            throw new ExpiredJwtException(null, claims, null);
-        }
+    /**
+     * @param username
+     * @return
+     */
+    public String generateAccessToken(final String username) {
+        return createAccessToken(username);
     }
 
-    public String generateAccessToken(String username, T user) {
-        HashMap<String, T> claims = new HashMap<>();
-        claims.put("data", user);
-        return createAccessToken(claims, username);
-    }
-
-    public String generateRefreshToken(String username, T user) {
-        HashMap<String, T> claims = new HashMap<>();
-        claims.put("data", user);
-        return createRefreshToken(claims, username);
-    }
-
-    // Getters and setters
-    public String getAccessToken() {
-        return this.tokenAccess;
-    }
-
-    public String getRefreshToken() {
-        return this.tokenRefresh;
-    }
-
-    public Claims getClaims() {
-        return this.claims;
+    /**
+     * @param username
+     * @return
+     */
+    public String generateRefreshToken(final String username) {
+        return createRefreshToken(username);
     }
 }
